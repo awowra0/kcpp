@@ -1,6 +1,4 @@
-#include <iostream>
 #include <time.h>
-#include <iomanip>
 #include <string>
 #include <ncurses.h>
 #include <cstring>
@@ -153,7 +151,7 @@ class Battleships{
 					if (i<0 || j<0) continue;
 					else if (j>9) continue;
 					else if (b->fields[i][j] != '=' && b->fields[i][j] != '?'){
-						return false;		
+						return false;
 					}
 				}
 			}
@@ -162,18 +160,18 @@ class Battleships{
 
 		bool singleplacement(board *b, int k[4][2], int toplace, int kk){//tries to place ship containing first position, b - 	board, k - ship coordinates, toplace - ship size, kk - ship id
 			int xyposible[10][2] = {{k[0][0]-1,k[0][1]},{k[0][0]+1,k[0][1]},{k[0][0],k[0][1]-1},{k[0][0],k[0][1]+1}};
-			int temp = 4;
-			int kpos = 1;
-			int toplacetemp = toplace;
+			int temp = 4;//candidates counter
+			int kpos = 1;//current ship part to place
+			int toplacetemp = toplace;//number of remaining parts to place
 			while (temp){
 				int xy = rand() % temp;
 				if (checkpoint(b, xyposible[xy][0], xyposible[xy][1])){
 					k[kpos][0] = xyposible[xy][0];
 					k[kpos][1] = xyposible[xy][1];
-					int newpos[4][2] = {{k[kpos][0]-1,k[kpos][1]},{k[kpos][0]+1,k[kpos][1]},{k[kpos][0],k[kpos][1]-1},{k[kpos]	[0],k[kpos][1]+1}};
+					int newpos[4][2] = {{k[kpos][0]-1,k[kpos][1]},{k[kpos][0]+1,k[kpos][1]},{k[kpos][0],k[kpos][1]-1},{k[kpos][0],k[kpos][1]+1}};
 					kpos++;
-					if (!--toplacetemp){
-						for(int i=0; i<toplace; i++){
+					if (!--toplacetemp){//is ship fully placed?
+						for(int i=0; i<toplace; i++){//write to the board
 							b->fields[k[i][1]][k[i][0]] = '0'+toplace;
 							b->ships[kk].xy[i][0] = k[i][0];
 							b->ships[kk].xy[i][1] = k[i][1];
@@ -182,70 +180,58 @@ class Battleships{
 						return true;
 					}
 					bool bpos;
-					for (int j=4; j>0; j--){
+					for (int j=4; j>0; j--){//check new candidates
 						bpos = true;
 						for (int i=temp-1; i>=0; i--){
 							if (newpos[j][0]<0 || newpos[j][1]<0 || newpos[j][0]>9 || newpos[j][1]>9){
-								bpos = false;
+								bpos = false;//out of bounds
 								break;
 							}
 							else if(newpos[j][0] == xyposible[i][0] && newpos[j][1] == xyposible[i][1]){
-								bpos = false;
+								bpos = false;//already exists
 								break;
 							}
 							for (int t=kpos; t>=0; t--){
 								if (newpos[j][0] == k[t][0] && newpos[j][1] == k[t][1]){
-									bpos = false;
+									bpos = false;//already placed
 									break;
 								}
 							}
 						}
-						if (bpos){
+						if (bpos){//add new candidate
 							xyposible[temp][0] = newpos[j][0];
 							xyposible[temp][1] = newpos[j][1];
 							temp++;
 						}
 					}
 				}
-				if (temp>1){
+				if (temp>1){//replace chosen candidate with last one
 					xyposible[xy][0] = xyposible[temp-1][0];
 					xyposible[xy][1] = xyposible[temp-1][1];
 				}
-				temp--;
+				temp--;//removed
 			}
-			return false;
+			return false;//no candidates left
 		}
 
 
 		void com_placement(board *b){//random ship placement
 			int x = random()%10, y = random()%10;
-			bool bplace;
 			int iplacements;
 			int temp;
 			for (int k=10; k>=0; k--){
-				bplace = true;
-				for (int i=y-1; i<=y+1; i++){
-					for (int j=x-1; j<=x+1; j++){
-						if (i<0 || j<0) continue;
-						else if (j>9) continue;
-						else if (b->fields[i][j] != '='){
-							bplace = false;
-						}
-					}
-					if (i>9) break;
-				}
-				if (bplace){
-					int kk[4][2]={{x,y}};
+				if (checkpoint(b,x,y)){//is random position fine?
+					int kk[4][2]={{x,y}};//ship parts positions
 					if (k==10){
 						if (!singleplacement(b, kk, 4, k-1)) k++;
 					}
-					else if (k<10 && k>7){
+					else if (k>7){
 						if (!singleplacement(b, kk, 3, k-1)) k++;
 					}
-					else if (k<8 && k>4){
+					else if (k>4){
 						if (!singleplacement(b, kk, 2, k-1)) k++;
 					}
-					else if (k<5 && k>0){
+					else if (k>0){
 						b->fields[y][x] = '1';
 						b->ships[k-1].xy[0][0] = x;
 						b->ships[k-1].xy[0][1] = y;
@@ -264,8 +250,8 @@ class Battleships{
 
 		bool psplacement(board *b, int size, int kk){//manual ship placement. b - player board, size - ship size, kk - ship id
 			int c;
-			int placepoints[4][2] = {0};
-			int temp = 0;
+			int placepoints[4][2] = {0};//ships parts positions
+			int temp = 0;//number of placed parts
 			screen(b, kk);
 			while (temp<size){
 				c = getch();
@@ -298,12 +284,12 @@ class Battleships{
 					case 'X':
 					case KEY_ENTER:
 					case '\n':
-						if (checkpoint(b, cursor.x, cursor.y)){
+						if (checkpoint(b, cursor.x, cursor.y)){//if selected position is fine
 							placepoints[temp][0] = cursor.x;
 							placepoints[temp][1] = cursor.y;
-							b->fields[cursor.y][cursor.x] = '?';
+							b->fields[cursor.y][cursor.x] = '?';//position noted
 							bool bposible = false;
-							for (int i=0; i<temp; i++){
+							for (int i=0; i<temp; i++){//check earlier placed positions ('?')
 								int tx = placepoints[i][0]-cursor.x;
 								int ty = placepoints[i][1]-cursor.y;
 								if (!tx && !ty){
@@ -314,7 +300,7 @@ class Battleships{
 									bposible = true;
 								}
 							}
-							if (!bposible && temp){
+							if (!bposible && temp){//if parts are not connected, remove '?'
 								for (int j=0; j<=temp; j++) b->fields[placepoints[j][1]][placepoints[j][0]] = '=';
 								message = "Incorrext placement.";
 								return false;
@@ -329,7 +315,7 @@ class Battleships{
 						}
 				}
 			}
-			for (int k=0; k<size; k++){
+			for (int k=0; k<size; k++){//place ship on the board
 				b->fields[placepoints[k][1]][placepoints[k][0]] = '0' + size;
 				b->ships[kk].xy[k][0] = placepoints[k][0];
 				b->ships[kk].xy[k][1] = placepoints[k][1];
@@ -340,27 +326,28 @@ class Battleships{
 		}
 
 		void my_placement(board *b){//controlls manual placement. b - player board
-			int size;
+			int size;//size of ship
 			for (int k=10; k>=0; k--){
 				if (k==10){
 					size = 4;
 				}
-				else if (k<10 && k>7){
+				else if (k>7){
 					size = 3;
 				}
-				else if (k<8 && k>4){
+				else if (k>4){
 					size = 2;
 				}
-				else if (k<5 && k>0){
+				else if (k>0){
 					size = 1;
 				}
 				else{
 					b->iship = 10;
+					message = "All ships are placed properly.";
 					return;
 				}
-				if (!psplacement(b, size, k-1)) k++;
+				if (!psplacement(b, size, k-1)) k++;//if input fails, try again
 			}
-			message = "All ships are placed properly.";
+
 		}
 
 
