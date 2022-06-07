@@ -1,2 +1,2 @@
 # kcpp
-Kurs C-Plus-Plus
+Kurs C++
