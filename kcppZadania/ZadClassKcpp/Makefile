@@ -1,6 +1,6 @@
 main: ZadPrzekazywanieTablic.o ZadArytmetykaWskaznikow.o ZadAdresowaniePamieci.o ZadParzysta.o ZadUnia.o ZadKcpp.o main.o
 	g++ main.o ZadPrzekazywanieTablic.o ZadArytmetykaWskaznikow.o ZadKcpp.o ZadAdresowaniePamieci.o ZadParzysta.o ZadUnia.o -o main
-	make clean
+	rm -rf *.o
 
 ZadPrzekazywanieTablic.o: src/ZadPrzekazywanieTablicZPodaniemRozmiaru.cc
 	g++ -c src/ZadPrzekazywanieTablicZPodaniemRozmiaru.cc -I./include -o ZadPrzekazywanieTablic.o
@@ -28,4 +28,4 @@ clean:
 
 cleanall:
 	rm -rf *.o
-	find main && rm main
+	rm -rf main
