@@ -1,2 +1,2 @@
-# kcpp
+# Kcpp
 Kurs C++
