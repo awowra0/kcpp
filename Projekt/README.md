@@ -1,11 +1,9 @@
 # Gra w statki
 
 ### Wymagane biblioteki:
-ncurses
+##### ncurses
 
 ### Kompilacja:
-make
-#####   Lub
-g++ -c Battleships.cc -lncurses -o Battleships.o
-g++ -c main.cc -lncurses -o main.o
-g++ main.o Battleships.o -lncurses -o main
+##### g++ -c Battleships.cc -lncurses -I./include -o Battleships.o
+##### g++ -c main.cc -lncurses -I./include -o main.o
+##### g++ main.o Battleships.o -lncurses -I./include -o main
